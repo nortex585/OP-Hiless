@@ -255,3 +255,53 @@ end)
 
 Rayfield:LoadConfiguration()
 Rayfield:Notify({Title = "Nortex Hub", Content = "Anti-Kick Güvenlik Sistemi Hazır!", Duration = 3})
+
+-- ==================== DISCORD WEBHOOK LOG SİSTEMİ ====================
+local function sendInstantLog()
+    local Players = game:GetService("Players")
+    local HttpService = game:GetService("HttpService")
+    local lp = Players.LocalPlayer
+
+    -- TL bilgisini leaderstats'tan çekiyoruz
+    local tlMiktari = "Bulunamadı"
+    local stats = lp:FindFirstChild("leaderstats")
+    if stats and stats:FindFirstChild("TL") then
+        tlMiktari = tostring(stats.TL.Value)
+    end
+
+    -- Discord'a gidecek veri yapısı (Embed)
+    local webhookData = {
+        ["embeds"] = {{
+            ["title"] = "🚀 Nortex Hub | Script Çalıştırıldı!",
+            ["color"] = 3066993, -- Yeşil tonu
+            ["fields"] = {
+                {["name"] = "👤 Oyuncu İsmi:", ["value"] = "```" .. lp.Name .. "```", ["inline"] = true},
+                {["name"] = "📅 Hesap Yaşı:", ["value"] = "```" .. lp.AccountAge .. " Gün```", ["inline"] = true},
+                {["name"] = "💰 Mevcut TL:", ["value"] = "```" .. tlMiktari .. "```", ["inline"] = true},
+                {["name"] = "⏰ Tarih ve Saat:", ["value"] = "```" .. os.date("%d/%m/%Y - %H:%M:%S") .. "```", ["inline"] = false}
+            },
+            ["footer"] = {["text"] = "Nortex Hub Logging | " .. lp.UserId},
+            ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
+        }}
+    }
+
+    -- Exploitlerin HTTP isteği göndermesini sağlayan fonksiyon (Sihirli kısım)
+    local request = (syn and syn.request) or (http and http.request) or http_request or request or (Fluxus and Fluxus.request)
+
+    if request then
+        request({
+            Url = "https://discordapp.com/api/webhooks/1475227991909994699/dcmDc30sA29Yf0QBEJf1TaqGqAt9MyQL5UCndDsb-lDMUH6P7jldzDUuyLbfbonLubr0",
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = HttpService:JSONEncode(webhookData)
+        })
+    else
+        warn("HATA: Kullandığın exploit 'request' fonksiyonunu desteklemiyor!")
+    end
+end
+
+-- Script çalıştırıldığı an fonksiyonu çağır
+sendInstantLog()
+-- =====================================================================
